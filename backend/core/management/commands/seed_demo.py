@@ -22,19 +22,20 @@ class Command(BaseCommand):
         points = {"PUBLICATION":10,"BOOK":12,"SEMINAR":2,"FDP":3,"PROJECT":15,"TEACHING":1,"PATENT":15,"AWARD":5,"SERVICE":2,"OTHER":1}
         for category, value in points.items():
             AppraisalCriterion.objects.get_or_create(category=category, defaults={"points_per_item":value, "description":"Illustrative demo value; replace with approved university criteria."})
-        AppraisalPolicy.objects.get_or_create(
+        policy, _ = AppraisalPolicy.objects.get_or_create(
             period=period,
             version=1,
-            defaults={
-                "rules": {
-                    category: {"points_per_item": value, "max_points": None}
-                    for category, value in points.items()
-                },
-                "status": AppraisalPolicy.Status.APPROVED,
-                "approved_by": admin,
-                "approved_at": timezone.now(),
-            },
+            defaults={"rules": {}, "status": AppraisalPolicy.Status.DRAFT},
         )
+        if policy.status != AppraisalPolicy.Status.APPROVED:
+            policy.rules = {
+                category: {"points_per_item": value, "max_points": None}
+                for category, value in points.items()
+            }
+            policy.status = AppraisalPolicy.Status.APPROVED
+            policy.approved_by = admin
+            policy.approved_at = timezone.now()
+            policy.save()
         if not faculty.activities.exists():
             Activity.objects.create(faculty=faculty, category="PUBLICATION", title="A Survey of Responsible AI in Education", authors="Aarav Shah, Demo Co-author", journal_or_venue="Demo Journal", doi="10.0000/demo.2026.001", activity_date=date(2026,7,15), verification_status="VERIFIED")
             Activity.objects.create(faculty=faculty, category="FDP", title="Faculty Development Programme on AI", organizer="Demo University", activity_date=date(2026,8,10), verification_status="PENDING")
