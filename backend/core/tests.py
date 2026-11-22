@@ -573,6 +573,26 @@ class AccountSecurityWorkflowTests(APITestCase):
     def setUp(self):
         mail.outbox.clear()
 
+    @override_settings(DEBUG=True)
+    @patch("core.views.send_email_verification", side_effect=Exception("mail unavailable"))
+    def test_local_registration_survives_email_delivery_failure(self, send_email):
+        response = self.client.post(
+            "/api/auth/register/",
+            {
+                "username": "console_email_faculty",
+                "email": "console_faculty@example.edu",
+                "first_name": "Console",
+                "last_name": "Faculty",
+                "password": "SecurePassword123!",
+                "employee_code": "CONSOLE001",
+                "department": "Physics",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("Account created locally", str(response.data["detail"]))
+        send_email.assert_called_once()
+
     def test_registration_requires_email_verification_before_token_login(self):
         response = self.client.post(
             "/api/auth/register/",

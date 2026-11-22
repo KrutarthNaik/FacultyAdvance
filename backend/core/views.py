@@ -200,6 +200,11 @@ class RegisterView(generics.CreateAPIView):
             send_email_verification(user)
         except Exception:
             logger.exception("Verification email delivery failed for user id %s.", user.pk)
+            if settings.DEBUG:
+                return Response(
+                    {"detail": "Account created locally. Use the verification link printed in the backend terminal, or request another verification email."},
+                    status=status.HTTP_201_CREATED,
+                )
             return Response(
                 {"detail": "Account created, but verification email could not be sent. Please request a new verification email."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
