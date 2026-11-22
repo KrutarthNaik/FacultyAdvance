@@ -176,6 +176,25 @@ administrator accounts through Django Admin using an authorized provisioning
 process. Registration in local debug mode requires email verification. The
 included demo accounts are strictly for local demonstration.
 
+### Vercel deployment
+
+Deploy the application as two Vercel projects from this same GitHub repository:
+
+1. Create a Vite project with **Root Directory** set to `frontend`.
+2. Create a Django project with **Root Directory** set to `backend`.
+3. Configure `VITE_API_URL=https://<backend-domain>/api/` and
+   `VITE_EVIDENCE_UPLOAD_MAX_MB=4` on the frontend project.
+4. Configure the backend with production PostgreSQL, TLS Redis, private S3-compatible
+   storage, SMTP/email delivery, HTTPS origins, and a 50-character random secret.
+
+Do not set `VERCEL`, secrets, or database credentials in source files. Vercel
+provides `VERCEL` automatically, and the project must receive backend secrets
+through Vercel Environment Variables. Run migrations once against the production
+database before opening the deployment to users.
+
+See [docs/vercel-deployment.md](docs/vercel-deployment.md) for the complete
+environment-variable list and verification checklist.
+
 ### Demo logins
 
 | Role | Username | Password |
