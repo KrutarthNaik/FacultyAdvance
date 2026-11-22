@@ -1,0 +1,10 @@
+.env
+.venv
+db.sqlite3
+media
+staticfiles
+__pycache__
+*.py[cod]
+core/tests.py
+docs
+Dockerfile
