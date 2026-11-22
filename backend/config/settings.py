@@ -136,6 +136,14 @@ CORS_ALLOWED_ORIGINS = config(
     default=config("FRONTEND_ORIGIN", default="http://localhost:5173"),
     cast=Csv(),
 )
+if DEBUG:
+    local_frontend_origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+    CORS_ALLOWED_ORIGINS = list(dict.fromkeys(
+        [*CORS_ALLOWED_ORIGINS, *local_frontend_origins]
+    ))
 globals().update(build_deployment_security(
     debug=DEBUG,
     allowed_hosts=ALLOWED_HOSTS,
